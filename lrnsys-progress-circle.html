@@ -13,18 +13,31 @@
         --circle-progress-height: 20px;
       }
     </style>
-    <circle-progress value="6" max="10" stroke-width="4"></circle-progress>
+    <circle-progress value="[[value]]" max="[[max]]" stroke-width="[[width]]"></circle-progress>
   </template>
   <script>
     Polymer({
       is: 'lrnsys-progress-circle',
       properties: {
+        /**
+         * Current value.
+         */
         value: {
           type: String,
           value: 0
         },
+        /**
+         * Max progression for doing math against.
+         */
         max: {
           type: String,
+        }
+        /**
+         * Stroke width.
+         */
+        width: {
+          type: Number,
+          value: 4
         }
       }
     });

@@ -1,0 +1,32 @@
+<link rel="import" href="../circle-progress/circle-progress.html">
+
+<dom-module id="lrnsys-progress-circle">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      circle-progress {
+        margin: 0;
+        --circle-progress-width: 20px;
+        --circle-progress-height: 20px;
+      }
+    </style>
+    <circle-progress value="6" max="10" stroke-width="4"></circle-progress>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnsys-progress-circle',
+      properties: {
+        value: {
+          type: String,
+          value: 0
+        },
+        max: {
+          type: String,
+        }
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,89 @@
+<link rel="import" href="imports.html">
+<link rel="import" href="./lrnsys-progress-circle.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+
+<!--
+`lrnsys-progress`
+A LRN element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrnsys-progress">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #circle-container {
+        display: flex;
+        justify-content: space-around;
+      }
+
+      paper-progress {
+        width: 100%;
+      }
+    </style>
+
+    <div id="circle-container">
+      <template is="dom-repeat" items="[[items]]" as="item">
+        <lrnsys-progress-circle></lrnsys-progress-circle>
+      </template>
+    </div>
+    <paper-progress value="[[overallPercentage]]" class="blue"></paper-progress>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnsys-progress',
+
+      properties: {
+        title: {
+          type: String,
+          value: 'lrnsys-progress',
+        },
+        items: {
+          type: Array,
+          value: [
+            {
+              "title": "Introduction",
+              "url": "intro.md",
+            },
+            {
+              "title": "ELMSLN",
+              "url": "about-elmsln.md"
+            },
+            {
+              "title": "Somre more",
+              "url": "some-more.md"
+            },
+            {
+              "title": "And then a really long title",
+              "url": "page-4.md"
+            }
+          ]
+        },
+        percentage: {
+          type: Number,
+          value: 0
+        },
+        active: {
+          type: Number,
+          value: 0
+        },
+        overallPercentage: {
+          type: Number,
+          computed: '_overallPercentageCompute(items, active)',
+          reflectToAttribute: true,
+        },
+      },
+      _overallPercentageCompute: function (items, active) {
+        return (active / items.length) * 100;
+      }
+
+    });
+  </script>
+</dom-module>

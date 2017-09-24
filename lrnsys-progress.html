@@ -27,13 +27,14 @@ A LRN element
         --paper-progress-transition-duration: 0.5s;
         --paper-progress-transition-timing-function: ease;
         --paper-progress-transition-transition-delay: .25s;
+        box-shadow: -1px 0 0 0 black inset;
       }
     </style>
     <paper-progress value="[[overallPercentage]]" class="blue"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="3">[[index]]</lrnsys-progress-circle>
+          <lrnsys-progress-circle step="[[index]]" label="[[item.title]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="3">[[index]]</lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -44,7 +45,9 @@ A LRN element
     Polymer({
 
       is: 'lrnsys-progress',
-
+      listeners: {
+        'active-node-changed': '_activeChanged',
+      },
       properties: {
         title: {
           type: String,
@@ -97,10 +100,23 @@ A LRN element
           reflectToAttribute: true,
         },
       },
+      _activeChanged: function (e) {
+        this.active = e.target.step;
+        this.items.forEach((element, index, array) => {
+          if (index <= this.active) {
+            this.items[index].status = 'complete';
+          }
+          else {
+            this.items[index].status = 'available';
+          }
+          const items = this.items;
+          this.set('items', []);
+          this.set('items', items);
+        });
+      },
       _overallPercentageCompute: function (items, active) {
         return (active / (items.length-1)) * 100;
       }
-
     });
   </script>
 </dom-module>

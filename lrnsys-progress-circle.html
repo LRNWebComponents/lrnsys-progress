@@ -1,4 +1,7 @@
 <link rel="import" href="../circle-progress/circle-progress.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../neon-animation/web-animations.html">
 
 <dom-module id="lrnsys-progress-circle">
   <template>
@@ -6,7 +9,12 @@
       :host {
         display: block;
       }
-
+      #button {
+        min-width: .1em;
+        margin: 0;
+        padding: 0;
+        display: inline;
+      }
       circle-progress {
         margin: 0;
         --circle-progress-width: 20px;
@@ -25,13 +33,24 @@
         background-color: var(--paper-progress-disabled-active-color, var(--google-grey-300));
       }
     </style>
-    <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="170">
+    <paper-button id="button">
+      <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="170">
       <slot></slot>
     </circle-progress>
+    </paper-button>
+    <paper-tooltip
+      for="button"
+      position="bottom"
+      offset="0">
+      [[label]]
+    </paper-tooltip>
   </template>
   <script>
     Polymer({
       is: 'lrnsys-progress-circle',
+      listeners: {
+        'button.mousedown': 'tapEventOn',
+      },
       properties: {
         /**
          * Current value.
@@ -65,7 +84,10 @@
           type: Number,
           value: 4,
         },
-      }
+      },
+      tapEventOn: function(e) {
+        this.fire('active-node-changed', {node: e});
+      },
     });
   </script>
 </dom-module>

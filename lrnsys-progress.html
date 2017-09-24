@@ -15,23 +15,25 @@ A LRN element
       :host {
         display: block;
       }
-
       #circle-container {
         display: flex;
-        justify-content: space-around;
+        justify-content:space-between;
+        list-style: none;
+        margin-top: -.9em;
+        padding: 0;
       }
-
       paper-progress {
         width: 100%;
       }
     </style>
-
-    <div id="circle-container">
-      <template is="dom-repeat" items="[[items]]" as="item">
-        <lrnsys-progress-circle></lrnsys-progress-circle>
-      </template>
-    </div>
     <paper-progress value="[[overallPercentage]]" class="blue"></paper-progress>
+    <ul id="circle-container">
+      <template is="dom-repeat" items="[[items]]" as="item">
+        <li class="circle-node">
+          <lrnsys-progress-circle></lrnsys-progress-circle>
+        </li>
+      </template>
+    </ul>
 
   </template>
 
@@ -81,7 +83,7 @@ A LRN element
         },
       },
       _overallPercentageCompute: function (items, active) {
-        return (active / items.length) * 100;
+        return (active / (items.length-1)) * 100;
       }
 
     });

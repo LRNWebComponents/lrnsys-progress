@@ -11,9 +11,23 @@
         margin: 0;
         --circle-progress-width: 20px;
         --circle-progress-height: 20px;
+        --circle-progress-stroke-color: var(--paper-progress-container-color, --google-green-500);
+        --circle-progress-bg-stroke-color: var(--paper-progress-container-color, --google-grey-300);;
+      }
+      .disabled {
+        background-color: var(--paper-progress-disabled-active-color, var(--google-grey-500));
+        --circle-progress-bg-stroke-color: var(--paper-progress-container-color, --google-grey-500);
+      }
+      .complete {
+        background-color: var(--paper-progress-container-color, --google-green-500);
+      }
+      .available {
+        background-color: var(--paper-progress-disabled-active-color, var(--google-grey-300));
       }
     </style>
-    <circle-progress value="[[value]]" max="[[max]]" stroke-width="[[width]]"></circle-progress>
+    <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="170">
+      <slot></slot>
+    </circle-progress>
   </template>
   <script>
     Polymer({
@@ -24,21 +38,33 @@
          */
         value: {
           type: String,
-          value: 0
+          value: 0,
+          reflectToAttribute: true,
+        },
+        /**
+         * Status of the progression.
+         * Possible values are disabled, complete, available
+         */
+        status: {
+          type: String,
+          value: 'available',
+          reflectToAttribute: true,
+          notify: true,
         },
         /**
          * Max progression for doing math against.
          */
         max: {
           type: String,
-        }
+          reflectToAttribute: true,
+        },
         /**
          * Stroke width.
          */
         width: {
           type: Number,
-          value: 4
-        }
+          value: 4,
+        },
       }
     });
   </script>

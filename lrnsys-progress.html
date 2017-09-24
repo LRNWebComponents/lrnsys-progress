@@ -19,18 +19,21 @@ A LRN element
         display: flex;
         justify-content:space-between;
         list-style: none;
-        margin-top: -.9em;
+        margin: -.9em 0 0 0;
         padding: 0;
       }
       paper-progress {
         width: 100%;
+        --paper-progress-transition-duration: 0.5s;
+        --paper-progress-transition-timing-function: ease;
+        --paper-progress-transition-transition-delay: .25s;
       }
     </style>
     <paper-progress value="[[overallPercentage]]" class="blue"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle></lrnsys-progress-circle>
+          <lrnsys-progress-circle status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="3">[[index]]</lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -53,18 +56,30 @@ A LRN element
             {
               "title": "Introduction",
               "url": "intro.md",
+              "status": "complete",
+              "value": 100,
+              "max": 100,
             },
             {
               "title": "ELMSLN",
-              "url": "about-elmsln.md"
+              "url": "about-elmsln.md",
+              "status": "available",
+              "value": 10,
+              "max": 100,
             },
             {
               "title": "Somre more",
-              "url": "some-more.md"
+              "url": "some-more.md",
+              "status": "available",
+              "value": 0,
+              "max": 100,
             },
             {
               "title": "And then a really long title",
-              "url": "page-4.md"
+              "url": "page-4.md",
+              "status": "disabled",
+              "value": 0,
+              "max": 100,
             }
           ]
         },

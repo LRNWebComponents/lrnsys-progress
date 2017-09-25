@@ -1,6 +1,4 @@
 <link rel="import" href="imports.html">
-<link rel="import" href="./lrnsys-progress-circle.html">
-<link rel="import" href="../paper-progress/paper-progress.html">
 
 <!--
 `lrnsys-progress`
@@ -30,7 +28,7 @@ A LRN element
         box-shadow: -1px 0 0 0 black inset;
       }
     </style>
-    <paper-progress value="[[overallPercentage]]" class="blue"></paper-progress>
+    <paper-progress value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
@@ -43,79 +41,94 @@ A LRN element
 
   <script>
     Polymer({
-
       is: 'lrnsys-progress',
       listeners: {
         'active-node-changed': '_activeChanged',
       },
       properties: {
-        title: {
-          type: String,
-          value: 'lrnsys-progress',
-        },
+        /**
+         * Items to display to visualize the progression.
+         */
         items: {
           type: Array,
-          value: [
-            {
-              "title": "Introduction",
-              "url": "intro.md",
-              "status": "complete",
-              "value": 100,
-              "max": 100,
-            },
-            {
-              "title": "ELMSLN",
-              "url": "about-elmsln.md",
-              "status": "available",
-              "value": 10,
-              "max": 100,
-            },
-            {
-              "title": "Somre more",
-              "url": "some-more.md",
-              "status": "available",
-              "value": 0,
-              "max": 100,
-            },
-            {
-              "title": "And then a really long title",
-              "url": "page-4.md",
-              "status": "disabled",
-              "value": 0,
-              "max": 100,
-            }
-          ]
+          value: [],
+          notify: true,
         },
-        percentage: {
-          type: Number,
-          value: 0
-        },
+        /**
+         * ID of the active item.
+         */
         active: {
           type: Number,
-          value: 0
+          value: 0,
+          reflectToAttribute: true,
         },
+        /**
+         * State of progress in the current progression
+         */
+        state: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * How far is the user through this series of items.
+         */
         overallPercentage: {
           type: Number,
           computed: '_overallPercentageCompute(items, active)',
           reflectToAttribute: true,
         },
       },
+      /**
+       * Active item has changed, set the rest of the data to match.
+       */
       _activeChanged: function (e) {
         this.active = e.target.step;
         this.items.forEach((element, index, array) => {
-          if (index <= this.active) {
-            this.items[index].status = 'complete';
+          if (this.items[index].status == 'disabled') {
+            // do nothing, it's disabled
+          }
+          else if (index < this.active) {
+            this.set('items.' + index +'.status', 'complete');
+          }
+          else if (index == this.active) {
+            this.set('items.' + index +'.status', 'complete');
           }
           else {
-            this.items[index].status = 'available';
+            this.set('items.' + index +'.status', 'available');
           }
-          const items = this.items;
-          this.set('items', []);
-          this.set('items', items);
         });
       },
+      /**
+       * Calculate the overall percentage competed.
+       * This forms the line that's connecting the steps.
+       */
       _overallPercentageCompute: function (items, active) {
+        this.state = 'active item is ' + active;
+        this.fire('progress-status-change', {status: this.state});
         return (active / (items.length-1)) * 100;
+      },
+      /**
+       * Change the percentage for the active item.
+       */
+      changePercentage: function (percentage) {
+        if (percentage >= this.items[this.active].max) {
+          this.set('items.' + this.active +'.value', this.items[this.active].max);
+          this.set('items.' + this.active +'.status', 'complete');
+          // ensure we still have more items to go in the list
+          if (this.items.length > (this.active + 1)) {
+            this.active = this.active + 1;
+            this.set('items.' + this.active +'.value', 0);
+            this.fire('progress-status-change', {status: this.state});
+          }
+          else if (this.items.length == this.active + 1) {
+            // fire an event change to indicate that this happened
+            this.state = 'complete';
+            this.fire('progress-status-change', {status: this.state});
+          }
+        }
+        else {
+          this.set('items.' + this.active +'.value', percentage);
+        }
       }
     });
   </script>

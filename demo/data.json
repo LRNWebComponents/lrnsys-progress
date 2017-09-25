@@ -1,18 +1,44 @@
 [
-	{
-	  "title":"Introduction",
-	  "url":"intro.md"
-	},
-	{
-	  "title":"ELMSLN",
-	  "url":"about-elmsln.md"
-	},
-	{
-	  "title":"Somre more",
-	  "url":"some-more.md"
-	},
-	{
-	  "title":"And then a really long title",
-	  "url":"page-4.md"
-	}
+  {
+    "title": "Introduction",
+    "url": "intro.md",
+    "status": "available",
+    "value": 25,
+    "max": 100
+  },
+  {
+    "title": "ELMSLN",
+    "url": "about-elmsln.md",
+    "status": "available",
+    "value": 0,
+    "max": 100
+  },
+  {
+    "title": "Somre more",
+    "url": "some-more.md",
+    "status": "available",
+    "value": 0,
+    "max": 100
+  },
+  {
+    "title": "And then a really long title",
+    "url": "page-4.md",
+    "status": "available",
+    "value": 0,
+    "max": 100
+  },
+  {
+    "title": "And then a really long title",
+    "url": "page-4.md",
+    "status": "disabled",
+    "value": 0,
+    "max": 100
+  },
+  {
+    "title": "And then a really long title",
+    "url": "page-4.md",
+    "status": "available",
+    "value": 0,
+    "max": 100
+  }
 ]

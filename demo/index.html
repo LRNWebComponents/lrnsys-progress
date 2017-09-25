@@ -10,6 +10,9 @@
 
     <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-ajax/iron-ajax.html">
+    <link rel="import" href="../../paper-button/paper-button.html">
+    <link rel="import" href="../../paper-toast/paper-toast.html">
     <link rel="import" href="../lrnsys-progress.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
@@ -19,8 +22,45 @@
     <div class="vertical-section-container centered">
       <h3>Basic lrnsys-progress demo</h3>
       <demo-snippet>
-        <template>
-          <lrnsys-progress active="1"></lrnsys-progress>
+        <template is="dom-bind">
+          <lrnsys-progress id="progress" active="0" items="{{__items}}"></lrnsys-progress>
+
+          <iron-ajax
+           auto
+           id="ajax"
+           params=""
+           url="data.json"
+           handle-as="json"
+           last-response="{{__items}}"></iron-ajax>
+          <paper-toast id="toast"></paper-toast>
+          <paper-button id="button10">Add 10</paper-button>
+          <paper-button id="button50">Add 50</paper-button>
+          <script>
+            var t = document.querySelector('#button10');
+            var t2 = document.querySelector('#button50');
+            var p = document.querySelector('#progress');
+            var percent = 0;
+            // add 10 to percentage whenever hit
+            t.addEventListener('click', function(e) {
+              percent = percent + 10;
+              p.changePercentage(percent);
+              if (percent > 100) {
+                percent = 0;
+              }
+            });
+            // add 50 to percentage whenever hit
+            t2.addEventListener('click', function(e) {
+              percent = percent + 50;
+              p.changePercentage(percent);
+              if (percent > 100) {
+                percent = 0;
+              }
+            });
+            // alert when status event changed as to what it was
+            p.addEventListener('progress-status-change', function(e) {
+              document.querySelector('#toast').show(e.detail.status);
+            });
+          </script>
         </template>
       </demo-snippet>
     </div>

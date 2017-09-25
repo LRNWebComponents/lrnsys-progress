@@ -18,6 +18,8 @@
 
 A LRN element
 
+Video showing this in use: https://www.youtube.com/watch?v=FBa-UHOjhl4
+
 ## Install the Polymer-CLI
 
 First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.

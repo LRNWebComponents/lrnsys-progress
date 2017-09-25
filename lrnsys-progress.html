@@ -63,6 +63,16 @@ A LRN element
           reflectToAttribute: true,
         },
         /**
+         * Whether to automatically make disabled items available
+         * or not when the previous one was just complete.
+         */
+        progressiveUnlock: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
          * State of progress in the current progression
          */
         state: {
@@ -85,15 +95,18 @@ A LRN element
         this.active = e.target.step;
         this.items.forEach((element, index, array) => {
           if (this.items[index].status == 'disabled') {
-            // do nothing, it's disabled
+            // do nothing, it's disabled unless....
+            if (index != 0 && this.progressiveUnlock && this.items[index-1].status == 'complete') {
+              this.items[index].status = 'available'
+              this.set('items.' + index +'.status', 'available');
+            }
           }
-          else if (index < this.active) {
-            this.set('items.' + index +'.status', 'complete');
-          }
-          else if (index == this.active) {
+          else if (index <= this.active) {
+            this.items[index].status = 'complete'
             this.set('items.' + index +'.status', 'complete');
           }
           else {
+            this.items[index].status = 'available'
             this.set('items.' + index +'.status', 'available');
           }
         });
@@ -104,7 +117,7 @@ A LRN element
        */
       _overallPercentageCompute: function (items, active) {
         this.state = 'active item is ' + active;
-        this.fire('progress-status-change', {status: this.state});
+        this.fire('progress-status-change', {status: this.state, active: items[active]});
         return (active / (items.length-1)) * 100;
       },
       /**

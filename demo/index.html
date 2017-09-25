@@ -59,6 +59,7 @@
             // alert when status event changed as to what it was
             p.addEventListener('progress-status-change', function(e) {
               document.querySelector('#toast').show(e.detail.status);
+              console.log(e.detail.active);
             });
           </script>
         </template>

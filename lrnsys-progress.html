@@ -31,6 +31,7 @@ A LRN element
         --lrnsys-progress-circle-size: 2.5em;
       }
     </style>
+    <h3 hidden>[[title]]</h3>
     <paper-progress id="progress" value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
@@ -56,6 +57,14 @@ A LRN element
           type: Array,
           value: [],
           notify: true,
+        },
+        /**
+         * Title of this progression, primarily for accessibility.
+         */
+        title: {
+          type: String,
+          value: 'Steps to completion',
+          reflectToAttribute: true,
         },
         /**
          * Items displayed at specific points on the progression.

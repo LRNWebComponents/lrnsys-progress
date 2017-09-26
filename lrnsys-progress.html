@@ -17,22 +17,25 @@ A LRN element
         display: flex;
         justify-content:space-between;
         list-style: none;
-        margin: -.9em 0 0 0;
+        margin: -1.4em 0 0 0;
         padding: 0;
       }
       paper-progress {
-        width: 100%;
+        --paper-progress-height: .5em;
         --paper-progress-transition-duration: 0.5s;
         --paper-progress-transition-timing-function: ease;
-        --paper-progress-transition-transition-delay: .25s;
-        box-shadow: -1px 0 0 0 black inset;
+        --paper-progress-transition-delay: .4s;
+        width: 100%;
+      }
+      lrnsys-progress-circle {
+        --lrnsys-progress-circle-size: 2.5em;
       }
     </style>
-    <paper-progress value="[[overallPercentage]]"></paper-progress>
+    <paper-progress id="progress" value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle step="[[index]]" label="[[item.title]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="3">[[index]]</lrnsys-progress-circle>
+          <lrnsys-progress-circle active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -50,6 +53,17 @@ A LRN element
          * Items to display to visualize the progression.
          */
         items: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        /**
+         * Items displayed at specific points on the progression.
+         * These aren't filled up but place points along the progression
+         * which can help people see where they are relative to other
+         * factors such as % complete as a tick mark or icon.
+         */
+        keyItems: {
           type: Array,
           value: [],
           notify: true,
@@ -89,6 +103,12 @@ A LRN element
         },
       },
       /**
+       * Simple boolean for whatever is active currently.
+       */
+      _isActive: function (index, active) {
+        return index === active;
+      },
+      /**
        * Active item has changed, set the rest of the data to match.
        */
       _activeChanged: function (e) {
@@ -116,6 +136,7 @@ A LRN element
        * This forms the line that's connecting the steps.
        */
       _overallPercentageCompute: function (items, active) {
+        this.$.progress.classList.add('transiting');
         this.state = 'active item is ' + active;
         this.fire('progress-status-change', {status: this.state, active: items[active]});
         return (active / (items.length-1)) * 100;
@@ -129,6 +150,11 @@ A LRN element
           this.set('items.' + this.active +'.status', 'complete');
           // ensure we still have more items to go in the list
           if (this.items.length > (this.active + 1)) {
+            // if we have progressive unlocking then set the next thing available
+            if (this.active != 0 && this.progressiveUnlock && this.items[this.active].status == 'complete' && this.items[this.active+1].status == 'disabled') {
+              this.items[this.active + 1].status = 'available'
+              this.set('items.' + (this.active + 1) +'.status', 'available');
+            }
             this.active = this.active + 1;
             this.set('items.' + this.active +'.value', 0);
             this.fire('progress-status-change', {status: this.state});
@@ -142,7 +168,29 @@ A LRN element
         else {
           this.set('items.' + this.active +'.value', percentage);
         }
-      }
+      },
+      /**
+       * Modify items and update template binding correctly.
+       */
+      updateItems: function (op, item) {
+        var response = false;
+        if (op == 'push') {
+          this.push('items', item);
+          response = true;
+        }
+        else if (op == 'pop') {
+          response = this.pop('items');
+        }
+        else if (op == 'splice') {
+          this.splice('items', this.items.length, 0, item);
+          response = true;
+        }
+        // force active to reprocess
+        const active = this.active;
+        this.set('active', 0);
+        this.set('active', active);
+        return response;
+      },
     });
   </script>
 </dom-module>

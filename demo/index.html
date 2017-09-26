@@ -19,11 +19,11 @@
     </style>
   </head>
   <body>
-    <div class="vertical-section-container centered">
+    <div class="vertical-section-container">
       <h3>Basic lrnsys-progress demo</h3>
       <demo-snippet>
         <template is="dom-bind">
-          <lrnsys-progress id="progress" active="0" items="{{__items}}"></lrnsys-progress>
+          <lrnsys-progress id="progress" active="0" items="{{__items}}" progressive-unlock></lrnsys-progress>
 
           <iron-ajax
            auto
@@ -33,26 +33,39 @@
            handle-as="json"
            last-response="{{__items}}"></iron-ajax>
           <paper-toast id="toast"></paper-toast>
+
           <paper-button id="button10">Add 10</paper-button>
           <paper-button id="button50">Add 50</paper-button>
+
+          <paper-button id="add">Add to end</paper-button>
+          <paper-button id="drop">Remove last</paper-button>
+
           <script>
             var t = document.querySelector('#button10');
             var t2 = document.querySelector('#button50');
+            var add = document.querySelector('#add');
+            var drop = document.querySelector('#drop');
             var p = document.querySelector('#progress');
             var percent = 0;
             // add 10 to percentage whenever hit
             t.addEventListener('click', function(e) {
               percent = percent + 10;
-              p.changePercentage(percent);
               if (percent > 100) {
+                percent = 100;
+              }
+              p.changePercentage(percent);
+              if (percent == 100) {
                 percent = 0;
               }
             });
             // add 50 to percentage whenever hit
             t2.addEventListener('click', function(e) {
               percent = percent + 50;
-              p.changePercentage(percent);
               if (percent > 100) {
+                percent = 100;
+              }
+              p.changePercentage(percent);
+              if (percent == 100) {
                 percent = 0;
               }
             });
@@ -60,6 +73,29 @@
             p.addEventListener('progress-status-change', function(e) {
               document.querySelector('#toast').show(e.detail.status);
               console.log(e.detail.active);
+            });
+            // add an item
+            add.addEventListener('click', function(e) {
+              const item = {
+                "title": "New item",
+                "url": "#",
+                "status": "disabled",
+                "value": 0,
+                "max": 100,
+                "icon": "forward",
+                "iconComplete": "check"
+              };
+              p.updateItems('splice', item);
+              console.log(p.items);
+              document.querySelector('#toast').show('Item added');
+            });
+            // drop an item
+            drop.addEventListener('click', function(e) {
+              if (p.items.length > 0) {
+                p.updateItems('pop', {});
+                console.log(p.items);
+                document.querySelector('#toast').show('Item removed');
+              }
             });
           </script>
         </template>

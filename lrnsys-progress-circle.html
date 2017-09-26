@@ -2,12 +2,38 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 
 <dom-module id="lrnsys-progress-circle">
   <template>
     <style>
       :host {
         display: block;
+        border-radius: 50em;
+        -webkit-transition:
+          box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
+          color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
+          background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
+        -ms-transition:
+          box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
+          color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
+          background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
+        transition:
+          box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
+          color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
+          background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
+      }
+      :host[status='complete'] {
+        box-shadow: 0px 0px 0px 3px var(--lrnsys-progress-complete-color, --paper-green-900);
+      }
+      :host[status='disabled'] {
+        box-shadow: none;
+      }
+      :host[status='available'] {
+        box-shadow: none;
+      }
+      :host[active] {
+        box-shadow: 0px 0px 0px 3px var(--google-grey-500);
       }
       #button {
         min-width: .1em;
@@ -17,27 +43,40 @@
       }
       circle-progress {
         margin: 0;
-        --circle-progress-width: 20px;
-        --circle-progress-height: 20px;
-        --circle-progress-stroke-color: var(--paper-progress-container-color, --google-green-500);
-        --circle-progress-bg-stroke-color: var(--paper-progress-container-color, --google-grey-300);;
+        --circle-progress-width: var(--lrnsys-progress-circle-size, 20px);
+        --circle-progress-height: var(--lrnsys-progress-circle-size, 20px);
+        --circle-progress-stroke-color: var(--lrnsys-progress-color, --google-green-500);
+        --circle-progress-bg-stroke-color: var(--lrnsys-progress-container-color, --google-grey-300);
+        --circle-progress-transition: 0.5s;
+        --circle-progress-stroke-linecap: square;
       }
       .disabled {
-        background-color: var(--paper-progress-disabled-active-color, var(--google-grey-500));
-        --circle-progress-bg-stroke-color: var(--paper-progress-container-color, --google-grey-500);
-      }
-      .complete {
-        background-color: var(--paper-progress-container-color, --google-green-500);
+        background-color: var(--lrnsys-progress-disabled-color, --google-grey-500);
+        color: white;
       }
       .available {
-        background-color: var(--paper-progress-disabled-active-color, var(--google-grey-300));
+        background-color: var(--lrnsys-progress-active-color, --google-grey-300);
+        color: var(--lrnsys-progress-active-text-color, --google-grey-500);
+      }
+      .activeIcon {
+        color: black;
+      }
+      .complete .activeIcon {
+        color: white;
+      }
+      .complete {
+        background-color: var(--lrnsys-progress-container-color, --google-green-500);
+        color: white;
       }
     </style>
-    <paper-button id="button">
-      <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="170">
-      <slot></slot>
-    </circle-progress>
-    </paper-button>
+    <a href="[[url]]" tabindex="-1">
+      <paper-button id="button" disabled$="[[disabled]]">
+        <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="180">
+        <iron-icon id="icon" icon="[[activeIcon]]" hidden$="[[!activeIcon]]"></iron-icon>
+        <slot></slot>
+      </circle-progress>
+      </paper-button>
+    </a>
     <paper-tooltip
       for="button"
       position="bottom"
@@ -49,7 +88,10 @@
     Polymer({
       is: 'lrnsys-progress-circle',
       listeners: {
-        'button.mousedown': 'tapEventOn',
+        'button.tap': 'tapEventOn',
+        'button.mouseover': 'focusOn',
+        'button.mouseout': 'focusOff',
+        'button.focused-changed': 'focusEvent',
       },
       properties: {
         /**
@@ -61,6 +103,46 @@
           reflectToAttribute: true,
         },
         /**
+         * Icon.
+         */
+        icon: {
+          type: String,
+          value: 0,
+          reflectToAttribute: true,
+        },
+        /**
+         * Special icon to use when the item has been completed.
+         */
+        iconComplete: {
+          type: String,
+          value: 0,
+          reflectToAttribute: true,
+        },
+        /**
+         * Current value.
+         */
+        activeIcon: {
+          type: String,
+          computed: '_getActiveIcon(icon, iconComplete, status)'
+        },
+        /**
+         * Array position within a larger body of items.
+         */
+        step: {
+          type: Number,
+          value: 0,
+          reflectToAttribute: true,
+        },
+        /**
+         * If this item is active or not in the larger list
+         */
+        active: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
          * Status of the progression.
          * Possible values are disabled, complete, available
          */
@@ -69,6 +151,13 @@
           value: 'available',
           reflectToAttribute: true,
           notify: true,
+        },
+        /**
+         * Correctly disable the button if it's status is such.
+         */
+        disabled: {
+          type: Boolean,
+          computed: '_disableStatus(status)'
         },
         /**
          * Max progression for doing math against.
@@ -84,12 +173,91 @@
           type: Number,
           value: 4,
         },
+        /**
+         * Tracks if focus state is applied for element consistency
+         * when dealing with focus vs hover states.
+         */
+        focusState: {
+          type: Boolean,
+          value: false,
+        }
+      },
+      /**
+       * Focus event for UX consistency.
+       */
+      focusEvent: function (e) {
+        // see if it has hover classes
+        if (!this.disabled) {
+          // focus shows focus
+          if (this.focusState) {
+            // force icon to be set to real one and class added
+            this.$.icon.icon = this.icon;
+            this.$.icon.classList.add('activeIcon');
+          }
+          else {
+            // if complete set it back to what it was
+            if (this.status == 'complete') {
+              this.$.icon.icon = this.iconComplete;
+            }
+            // drop the class for active step
+            this.$.icon.classList.remove('activeIcon');
+          }
+          this.focusState = !this.focusState;
+        }
+      },
+      /**
+       * Focus event for UX consistency.
+       */
+      focusOn: function (e) {
+        // see if it has hover classes
+        if (!this.disabled) {
+          // force icon to be set to real one and class added
+          this.$.icon.icon = this.icon;
+          this.$.icon.classList.add('activeIcon');
+        }
+      },
+      /**
+       * Focus event for UX consistency.
+       */
+      focusOff: function (e) {
+        // see if it has hover classes
+        if (!this.disabled) {
+          // if complete set it back to what it was
+          if (this.status == 'complete') {
+            this.$.icon.icon = this.iconComplete;
+          }
+          // drop the class for active step
+          this.$.icon.classList.remove('activeIcon');
+        }
       },
       /**
        * Tapped on the item.
        */
-      tapEventOn: function(e) {
+      tapEventOn: function (e) {
         this.fire('active-node-changed', {node: e});
+      },
+      /**
+       * Calculate which icon to present.
+       */
+      _getActiveIcon: function (icon, iconComplete, status) {
+        if (typeof icon !== typeof undefined) {
+          if (status == 'complete' && typeof iconComplete !== typeof undefined) {
+            return iconComplete;
+          }
+          else {
+            return icon;
+          }
+        }
+        return false;
+      },
+      /**
+       * Calculate disable based on the status of the item.
+       */
+      _disableStatus: function (status) {
+        if (status == 'disabled') {
+          return true;
+        }
+        return false;
       },
     });
   </script>

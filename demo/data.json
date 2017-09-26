@@ -1,44 +1,38 @@
 [
   {
     "title": "Introduction",
-    "url": "intro.md",
+    "url": "#",
     "status": "available",
     "value": 25,
-    "max": 100
+    "max": 100,
+    "icon": "gif",
+    "iconComplete": "check"
   },
   {
     "title": "ELMSLN",
-    "url": "about-elmsln.md",
+    "url": "#",
     "status": "available",
     "value": 0,
-    "max": 100
+    "max": 100,
+    "icon": "3d-rotation",
+    "iconComplete": "check"
   },
   {
-    "title": "Somre more",
-    "url": "some-more.md",
+    "title": "Stuff",
+    "url": "#",
     "status": "available",
     "value": 0,
-    "max": 100
+    "max": 100,
+    "icon": "flag",
+    "iconComplete": "check"
   },
   {
-    "title": "And then a really long title",
-    "url": "page-4.md",
+    "title": "Things",
+    "url": "#",
     "status": "available",
     "value": 0,
-    "max": 100
-  },
-  {
-    "title": "And then a really long title",
-    "url": "page-4.md",
-    "status": "disabled",
-    "value": 0,
-    "max": 100
-  },
-  {
-    "title": "And then a really long title",
-    "url": "page-4.md",
-    "status": "available",
-    "value": 0,
-    "max": 100
+    "max": 100,
+    "icon": "forward",
+    "iconComplete": "check"
   }
 ]

@@ -31,6 +31,12 @@ A LRN element
         --lrnsys-progress-circle-size: 2.5em;
       }
     </style>
+    <iron-ajax
+       id="ajax"
+       url="[[activeNodeURL]]"
+       handle-as="json"
+       last-response="{{nodeData}}"
+       on-response="handleNodeResponse"></iron-ajax>
     <h3 hidden>[[title]]</h3>
     <paper-progress id="progress" value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
@@ -47,7 +53,8 @@ A LRN element
     Polymer({
       is: 'lrnsys-progress',
       listeners: {
-        'active-node-changed': '_activeChanged',
+        'node-is-active': '_activeChanged',
+        'node-status-change': '_statusChanged',
       },
       properties: {
         /**
@@ -107,8 +114,23 @@ A LRN element
          */
         overallPercentage: {
           type: Number,
-          computed: '_overallPercentageCompute(items, active)',
+          computed: "_overallPercentageCompute(items, active)",
           reflectToAttribute: true,
+        },
+        /**
+         * Responses for each item.
+         */
+        _responseList: {
+          type: Array,
+          value: []
+        },
+        /**
+         * Active response from the node selected.
+         */
+        activeNodeResponse: {
+          type: String,
+          value: "",
+          observer: "_activeResponseChange",
         },
       },
       /**
@@ -116,6 +138,12 @@ A LRN element
        */
       _isActive: function (index, active) {
         return index === active;
+      },
+      /**
+       * Active Response changed; bubble it up.
+       */
+      _activeResponseChange: function (value) {
+        this.fire('progress-response-loaded', {response: value});
       },
       /**
        * Active item has changed, set the rest of the data to match.
@@ -126,13 +154,25 @@ A LRN element
           if (this.items[index].status == 'disabled') {
             // do nothing, it's disabled unless....
             if (index != 0 && this.progressiveUnlock && this.items[index-1].status == 'complete') {
+              this.items[index].status = 'loading'
+              this.set('items.' + index +'.status', 'loading');
+            }
+          }
+          else if (index < this.active) {
+            this.items[index].status = 'complete'
+            this.set('items.' + index +'.status', 'complete');
+          }
+          else if (index == this.active) {
+            // see if we have the data for it already
+            if (typeof this._responseList[index] === typeof undefined) {
+              this.items[index].status = 'loading'
+              this.set('items.' + index +'.status', 'loading');
+            }
+            else {
+              this.activeNodeResponse = this._responseList[index];
               this.items[index].status = 'available'
               this.set('items.' + index +'.status', 'available');
             }
-          }
-          else if (index <= this.active) {
-            this.items[index].status = 'complete'
-            this.set('items.' + index +'.status', 'complete');
           }
           else {
             this.items[index].status = 'available'
@@ -141,13 +181,54 @@ A LRN element
         });
       },
       /**
+       * Listen for the state of anything below to change.
+       */
+      _statusChanged: function (e) {
+        // we are in loading state so go load data and let the response
+        // dictate what state we reach after that
+        if (e.target.status == 'loading') {
+          this.$.ajax.url = this.items[this.active].url;
+          this.$.ajax.generateRequest();
+        }
+      },
+      /**
+       * Response returned from triggering the Node's URL to fire to get a response.
+       */
+      handleNodeResponse: function (e) {
+        const detail = e.detail;
+        // this means that it was an internal path, fake "loading"
+        if (typeof detail.response === typeof null) {
+          setTimeout( () => {
+            this.items[this.active].status = 'available'
+            this.set('items.' + this.active +'.status', 'available');
+            this._responseList[this.active] = detail.response;
+            this.activeNodeResponse = this._responseList[this.active];
+          }, 1500);
+        }
+        // valid response, pass it along for other things to use
+        else if (detail.response.status === 200) {
+          this.items[this.active].status = 'available'
+          this.set('items.' + this.active +'.status', 'available');
+          this._responseList[this.active] = detail.response;
+          this.activeNodeResponse = this._responseList[this.active];
+        }
+        else if (detail.response.status != 200) {
+          // fire an event that this isn't really available so we know an issue occured
+          this.fire('node-load-failed', {node: this.items[this.active]});
+          // @todo, need support for a failed to load state; could be useful
+          // if we go into an offline capability in the future
+          this.items[this.active].status = 'available'
+          this.set('items.' + this.active +'.status', 'available');
+        }
+      },
+      /**
        * Calculate the overall percentage competed.
        * This forms the line that's connecting the steps.
        */
       _overallPercentageCompute: function (items, active) {
         this.$.progress.classList.add('transiting');
         this.state = 'active item is ' + active;
-        this.fire('progress-status-change', {status: this.state, active: items[active]});
+        this.fire('progress-state-change', {state: this.state, active: items[active]});
         return (active / (items.length-1)) * 100;
       },
       /**
@@ -161,17 +242,21 @@ A LRN element
           if (this.items.length > (this.active + 1)) {
             // if we have progressive unlocking then set the next thing available
             if (this.active != 0 && this.progressiveUnlock && this.items[this.active].status == 'complete' && this.items[this.active+1].status == 'disabled') {
-              this.items[this.active + 1].status = 'available'
-              this.set('items.' + (this.active + 1) +'.status', 'available');
+              this.items[this.active + 1].status = 'loading'
+              this.set('items.' + (this.active + 1) +'.status', 'loading');
+            }
+            else if (typeof this._responseList[this.active + 1] === typeof undefined) {
+              this.items[this.active + 1].status = 'loading'
+              this.set('items.' + (this.active + 1) +'.status', 'loading');
             }
             this.active = this.active + 1;
             this.set('items.' + this.active +'.value', 0);
-            this.fire('progress-status-change', {status: this.state});
+            this.fire('progress-state-change', {state: this.state});
           }
           else if (this.items.length == this.active + 1) {
             // fire an event change to indicate that this happened
             this.state = 'complete';
-            this.fire('progress-status-change', {status: this.state});
+            this.fire('progress-state-change', {state: this.state});
           }
         }
         else {

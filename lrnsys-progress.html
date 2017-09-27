@@ -64,6 +64,7 @@ A LRN element
           type: Array,
           value: [],
           notify: true,
+          observer: "_itemsChanged",
         },
         /**
          * Title of this progression, primarily for accessibility.
@@ -132,6 +133,23 @@ A LRN element
           value: "",
           observer: "_activeResponseChange",
         },
+      },
+      /**
+       * Notice items have changed; only worry about if the count changes
+       * though since other oberservers handle downstream mutation
+       */
+      _itemsChanged: function(newValue, oldValue) {
+        // strange but this is effectively the same as "ready" except the ready
+        // state invokes potentially without items while this one will only
+        // match a case where there was no values and now we have one
+        if (typeof oldValue !== typeof undefined && newValue.length != oldValue.length && typeof this._responseList[this.active] === typeof undefined) {
+          this.items[this.active].status = 'loading';
+          this.set('items.' + this.active +'.status', 'loading');
+          // becasue this is so early in bootstrap of the element we
+          // won't be able to detect the initial loading event
+          this.$.ajax.url = this.items[this.active].url;
+          this.$.ajax.generateRequest();
+        }
       },
       /**
        * Simple boolean for whatever is active currently.
@@ -234,8 +252,18 @@ A LRN element
       /**
        * Change the percentage for the active item.
        */
-      changePercentage: function (percentage) {
-        if (percentage >= this.items[this.active].max) {
+      changePercentage: function (percentage, mode) {
+        var newp = 0;
+        if (mode == 'add') {
+          newp = this.items[this.active].value + percentage;
+        }
+        else if (mode == 'subtract') {
+          newp = this.items[this.active].value - percentage;
+        }
+        else {
+          newp = percentage;
+        }
+        if (newp >= this.items[this.active].max) {
           this.set('items.' + this.active +'.value', this.items[this.active].max);
           this.set('items.' + this.active +'.status', 'complete');
           // ensure we still have more items to go in the list
@@ -250,7 +278,6 @@ A LRN element
               this.set('items.' + (this.active + 1) +'.status', 'loading');
             }
             this.active = this.active + 1;
-            this.set('items.' + this.active +'.value', 0);
             this.fire('progress-state-change', {state: this.state});
           }
           else if (this.items.length == this.active + 1) {
@@ -260,7 +287,7 @@ A LRN element
           }
         }
         else {
-          this.set('items.' + this.active +'.value', percentage);
+          this.set('items.' + this.active +'.value', newp);
         }
       },
       /**

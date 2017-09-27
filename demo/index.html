@@ -72,7 +72,6 @@
             // alert when status event changed as to what it was
             p.addEventListener('progress-state-change', function(e) {
               document.querySelector('#toast').show(e.detail.state);
-              console.log(e.detail.active);
             });
             // add an item
             add.addEventListener('click', function(e) {

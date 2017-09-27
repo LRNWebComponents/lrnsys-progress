@@ -176,7 +176,7 @@ A LRN element
               this.set('items.' + index +'.status', 'loading');
             }
           }
-          else if (index < this.active) {
+          else if (this.items[index].value == this.items[index].max) {
             this.items[index].status = 'complete'
             this.set('items.' + index +'.status', 'complete');
           }

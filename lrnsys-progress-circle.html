@@ -85,7 +85,7 @@
       .loading iron-icon {
         width: 1em;
       }
-      .finished iron-icon {
+      .finished iron-icon:not(.activeIcon) {
         width: 1em;
       }
       .available {
@@ -97,6 +97,12 @@
       }
       .complete .activeIcon {
         color: white;
+      }
+      :host[active] .complete .activeIcon {
+        color: black;
+      }
+      :host[active] .finished .activeIcon {
+        color: black;
       }
       .complete,
       .finished {
@@ -260,7 +266,7 @@
        */
       focusEvent: function (e) {
         // see if it has hover classes
-        if (!this.disabled) {
+        if (!this.disabled && this.status != 'loading') {
           // focus shows focus
           if (this.focusState) {
             // force icon to be set to real one and class added
@@ -269,8 +275,8 @@
           }
           else {
             // if complete set it back to what it was
-            if (this.status == 'complete') {
-              this.$.icon.icon = this.iconComplete;
+            if (this.status == 'complete' || this.status == 'finished') {
+              this.$.icon.icon = this.activeIcon;
             }
             // drop the class for active step
             this.$.icon.classList.remove('activeIcon');
@@ -283,7 +289,7 @@
        */
       focusOn: function (e) {
         // see if it has hover classes
-        if (!this.disabled) {
+        if (!this.disabled && this.status != 'loading') {
           // force icon to be set to real one and class added
           this.$.icon.icon = this.icon;
           this.$.icon.classList.add('activeIcon');
@@ -294,11 +300,11 @@
        */
       focusOff: function (e) {
         // see if it has hover classes
-        if (!this.disabled) {
+        if (!this.disabled && this.status != 'loading') {
           // if complete set it back to what it was
-          if (this.status == 'complete') {
-            this.$.icon.icon = this.iconComplete;
-          }
+          if (this.status == 'complete' || this.status == 'finished') {
+              this.$.icon.icon = this.activeIcon;
+            }
           // drop the class for active step
           this.$.icon.classList.remove('activeIcon');
         }

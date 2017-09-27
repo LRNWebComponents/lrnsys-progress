@@ -1,7 +1,7 @@
 [
   {
     "title": "Introduction",
-    "url": "#",
+    "dataUrl": "data.json",
     "status": "available",
     "value": 25,
     "max": 100,
@@ -10,7 +10,7 @@
   },
   {
     "title": "ELMSLN",
-    "url": "#",
+    "dataUrl": "data.json",
     "status": "available",
     "value": 0,
     "max": 100,
@@ -19,7 +19,7 @@
   },
   {
     "title": "Stuff",
-    "url": "#",
+    "dataUrl": "data/callback.json",
     "status": "available",
     "value": 0,
     "max": 100,
@@ -28,7 +28,7 @@
   },
   {
     "title": "Things",
-    "url": "#",
+    "dataUrl": "data/callback.json",
     "status": "available",
     "value": 0,
     "max": 100,

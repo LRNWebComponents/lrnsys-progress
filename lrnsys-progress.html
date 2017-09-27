@@ -42,7 +42,7 @@ A LRN element
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
+          <lrnsys-progress-circle active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -133,7 +133,6 @@ A LRN element
           value: "",
           observer: "_activeResponseChange",
         },
-        ,
         /**
          * Active response from the node selected.
          */
@@ -155,7 +154,7 @@ A LRN element
           this.set('items.' + this.active +'.status', 'loading');
           // becasue this is so early in bootstrap of the element we
           // won't be able to detect the initial loading event
-          this.$.ajax.url = this.items[this.active].url;
+          this.$.ajax.url = this.items[this.active].dataUrl;
           this.$.ajax.generateRequest();
         }
       },
@@ -213,7 +212,7 @@ A LRN element
         // we are in loading state so go load data and let the response
         // dictate what state we reach after that
         if (e.target.status == 'loading') {
-          this.$.ajax.url = this.items[this.active].url;
+          this.$.ajax.url = this.items[this.active].dataUrl;
           this.$.ajax.generateRequest();
         }
       },
@@ -238,7 +237,7 @@ A LRN element
           this._responseList[this.active] = detail.response;
           this.activeNodeResponse = this._responseList[this.active];
         }
-        else if (detail.response.status != 200) {
+        else {
           // fire an event that this isn't really available so we know an issue occured
           this.fire('node-load-failed', {node: this.items[this.active]});
           // @todo, need support for a failed to load state; could be useful

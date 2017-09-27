@@ -115,7 +115,7 @@
       }
     </style>
     <paper-spinner active$="[[loading]]" hidden$="[[!loading]]" class="multi" alt$="Loading content for [[label]]"></paper-spinner>
-    <a tabindex="-1">
+    <a href="[[url]]" tabindex="-1">
       <paper-button id="button" disabled$="[[disabled]]" title="[[label]]">
         <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="180">
         <iron-icon id="icon" icon="[[activeIcon]]" hidden$="[[!activeIcon]]"></iron-icon>
@@ -243,6 +243,22 @@
          */
         max: {
           type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * URL to link to on click.
+         */
+        url: {
+          type: String,
+          value: '#',
+          reflectToAttribute: true,
+        },
+        /**
+         * Data url to bubble up for more advanced implementations.
+         */
+        dataUrl: {
+          type: String,
+          value: false,
           reflectToAttribute: true,
         },
         /**

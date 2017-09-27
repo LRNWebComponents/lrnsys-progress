@@ -284,6 +284,8 @@ A LRN element
             // fire an event change to indicate that this happened
             this.state = 'complete';
             this.fire('progress-state-change', {state: this.state});
+            this.items[this.active].status = 'finished';
+            this.set('items.' + (this.active) +'.status', 'finished');
           }
         }
         else {

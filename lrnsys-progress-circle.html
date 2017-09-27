@@ -50,6 +50,9 @@
         --circle-progress-bg-stroke-color: var(--lrnsys-progress-container-color, --google-grey-300);
         --circle-progress-transition: 0.5s;
         --circle-progress-stroke-linecap: square;
+        transition:
+          color .5s ease-in-out,
+          background-color .5s ease-in-out;
       }
       paper-spinner {
         display: block;
@@ -75,6 +78,16 @@
         background-color: var(--lrnsys-progress-disabled-color, --google-grey-500);
         color: white;
       }
+      .loading {
+        background-color: white;
+        color: black;
+      }
+      .loading iron-icon {
+        width: 1em;
+      }
+      .finished iron-icon {
+        width: 1em;
+      }
       .available {
         background-color: var(--lrnsys-progress-active-color, --google-grey-300);
         color: var(--lrnsys-progress-active-text-color, --google-grey-500);
@@ -85,9 +98,14 @@
       .complete .activeIcon {
         color: white;
       }
-      .complete {
+      .complete,
+      .finished {
         background-color: var(--lrnsys-progress-container-color, --google-green-500);
         color: white;
+      }
+      :host[active] circle-progress {
+        background-color: white;
+        color: black;
       }
     </style>
     <paper-spinner active$="[[loading]]" hidden$="[[!loading]]" class="multi" alt$="Loading content for [[label]]"></paper-spinner>
@@ -141,10 +159,27 @@
           reflectToAttribute: true,
         },
         /**
+         * Loading icon
+         */
+        loadingIcon: {
+          type: String,
+          value: 'hourglass-full',
+          reflectToAttribute: true,
+        },
+        /**
+         * Finished icon
+         */
+        finishedIcon: {
+          type: String,
+          value: 'thumb-up',
+          reflectToAttribute: true,
+        },
+        /**
          * Current value.
          */
         activeIcon: {
           type: String,
+          notify: true,
           computed: '_getActiveIcon(icon, iconComplete, status)'
         },
         /**
@@ -188,6 +223,14 @@
         loading: {
           type: Boolean,
           computed: '_loadingStatus(status)',
+        },
+        /**
+         * Boolean to invoke "finished" state. Useful for the last circle
+         * in a series.
+         */
+        finished: {
+          type: Boolean,
+          computed: '_finishedStatus(status)',
         },
         /**
          * Max progression for doing math against.
@@ -271,7 +314,14 @@
        */
       _getActiveIcon: function (icon, iconComplete, status) {
         if (typeof icon !== typeof undefined) {
-          if (status == 'complete' && typeof iconComplete !== typeof undefined) {
+          // support for a loading icon while loading
+          if (status == 'loading') {
+            return this.loadingIcon;
+          }
+          else if (status == 'finished') {
+            return this.finishedIcon;
+          }
+          else if (status == 'complete' && typeof iconComplete !== typeof undefined) {
             return iconComplete;
           }
           else {
@@ -285,6 +335,15 @@
        */
       _loadingStatus: function (status) {
         if (status == 'loading') {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Calculate loading based on the status of the item.
+       */
+      _finishedStatus: function (status) {
+        if (status == 'finished') {
           return true;
         }
         return false;

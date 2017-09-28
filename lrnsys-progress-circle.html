@@ -252,6 +252,14 @@
           reflectToAttribute: true,
         },
         /**
+         * Internal property to ensure we only ding 1x
+         * @type {Object}
+         */
+        __chimed: {
+          type: Boolean,
+          value: false,
+        },
+        /**
          * URL to link to on click.
          */
         url: {
@@ -281,7 +289,39 @@
         focusState: {
           type: Boolean,
           value: false,
-        }
+        },
+        /**
+         * Play sound status; if this should play sound
+         * when it hits certain milestones or not.
+         */
+        playSound: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+        },
+        /**
+         * Play sound at end; if this should play sound
+         * when it hits certain milestones or not.
+         */
+        playFinishSound: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+        },
+        /**
+         * Play sound on complete.
+         */
+        completeSound: {
+          type: String,
+          value: 'assets/337049__shinephoenixstormcrow__320655-rhodesmas-level-up-01.mp3',
+        },
+        /**
+         * Play sound on complete.
+         */
+        finishedSound: {
+          type: String,
+          value: 'assets/337049__shinephoenixstormcrow__320655-rhodesmas-level-up-01.mp3',
+        },
       },
       /**
        * Focus event for UX consistency.
@@ -350,6 +390,9 @@
             return this.finishedIcon;
           }
           else if (status == 'complete' && typeof iconComplete !== typeof undefined) {
+            if (this.playSound && !this.__chimed) {
+              this._playSound();
+            }
             return iconComplete;
           }
           else {
@@ -357,6 +400,24 @@
           }
         }
         return false;
+      },
+      /**
+       * Play the sound effect.
+       */
+      _playSound: function() {
+        if (this.status == 'complete') {
+          window.audio = new Audio(this.completeSound);
+          this.__chimed = true;
+        }
+        else if (this.status == 'finished') {
+          window.audio = new Audio(this.finishedSound);
+          this.__chimed = true;
+        }
+        else {
+          // shouldn't be possible
+          window.audio = new Audio();
+        }
+        window.audio.play();
       },
       /**
        * Calculate loading based on the status of the item.
@@ -372,6 +433,9 @@
        */
       _finishedStatus: function (status) {
         if (status == 'finished') {
+          if (this.playFinishSound && !this.__chimed) {
+            this._playSound();
+          }
           return true;
         }
         return false;

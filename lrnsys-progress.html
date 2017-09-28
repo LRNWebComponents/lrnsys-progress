@@ -26,7 +26,6 @@ A LRN element
         --paper-progress-transition-duration: 0.5s;
         --paper-progress-transition-timing-function: ease;
         --paper-progress-transition-delay: .4s;
-        width: 100%;
         margin: 1.2em 0 0 0;
         position: absolute;
         z-index: 1;
@@ -35,13 +34,17 @@ A LRN element
       .circle-node {
         z-index: 2;
       }
+      :host[vertical] {
+        width: min-content;
+      }
       :host[vertical] #circle-container {
-        display: flex;
-        align-items: center;
-        justify-content:unset;
+        display: block;
       }
       :host[vertical] paper-progress {
-        transform: rotate(90deg);
+        display: none !important;
+      }
+      :host[vertical] lrnsys-progress-circle {
+        margin: 1em;
       }
 
       :host[size="small"] paper-progress {
@@ -65,21 +68,29 @@ A LRN element
       }
 
       lrnsys-progress-circle.small {
+        width: 2em;
+        height: 2em;
         --lrnsys-progress-circle-size: 2em;
         --lrnsys-progress-spinner-size: 1.5em;
         --lrnsys-progress-icon-size: 1.75em;
       }
       lrnsys-progress-circle.medium {
+        width: 2.5em;
+        height: 2.5em;
         --lrnsys-progress-circle-size: 2.5em;
         --lrnsys-progress-spinner-size: 2em;
         --lrnsys-progress-icon-size: 2em;
       }
       lrnsys-progress-circle.large {
+        width: 5em;
+        height: 5em;
         --lrnsys-progress-circle-size: 5em;
         --lrnsys-progress-spinner-size: 4.5em;
         --lrnsys-progress-icon-size: 4em;
       }
       lrnsys-progress-circle.epic {
+        width: 10em;
+        height: 10em;
         --lrnsys-progress-circle-size: 10em;
         --lrnsys-progress-spinner-size: 9.5em;
         --lrnsys-progress-icon-size: 9.5em;
@@ -97,7 +108,7 @@ A LRN element
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle class$="[[size]]" active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
+          <lrnsys-progress-circle play-finish-sound="[[sound]]" play-sound="[[sound]]"  class$="[[size]]" active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -120,6 +131,11 @@ A LRN element
           value: [],
           notify: true,
           observer: "_itemsChanged",
+        },
+        sound: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
         },
         /**
          * Title of this progression, primarily for accessibility.
@@ -146,6 +162,7 @@ A LRN element
         active: {
           type: Number,
           value: 0,
+          notify: true,
           reflectToAttribute: true,
         },
         /**
@@ -262,6 +279,10 @@ A LRN element
               this.items[index].status = 'loading'
               this.set('items.' + index +'.status', 'loading');
             }
+          }
+          else if (this.items[index].value == this.items[index].max && index == this.items.length) {
+            this.items[index].status = 'finished'
+            this.set('items.' + index +'.status', 'finished');
           }
           else if (this.items[index].value == this.items[index].max) {
             this.items[index].status = 'complete'

@@ -12,12 +12,13 @@ A LRN element
     <style>
       :host {
         display: block;
+        padding: 1em;
       }
       #circle-container {
         display: flex;
         justify-content:space-between;
         list-style: none;
-        margin: -1.4em 0 0 0;
+        margin: 0;
         padding: 0;
       }
       paper-progress {
@@ -26,9 +27,62 @@ A LRN element
         --paper-progress-transition-timing-function: ease;
         --paper-progress-transition-delay: .4s;
         width: 100%;
+        margin: 1.2em 0 0 0;
+        position: absolute;
+        z-index: 1;
+        width: 90%;
       }
-      lrnsys-progress-circle {
+      .circle-node {
+        z-index: 2;
+      }
+      :host[vertical] #circle-container {
+        display: flex;
+        align-items: center;
+        justify-content:unset;
+      }
+      :host[vertical] paper-progress {
+        transform: rotate(90deg);
+      }
+
+      :host[size="small"] paper-progress {
+        --paper-progress-height: .4em;
+        margin: .8em 0 0 0;
+
+      }
+      :host[size="medium"] paper-progress {
+        --paper-progress-height: .5em;
+        margin: 1.2em 0 0 0;
+
+      }
+      :host[size="large"] paper-progress {
+        --paper-progress-height: .6em;
+        margin: 2em 0 0 0;
+
+      }
+      :host[size="epic"] paper-progress {
+        --paper-progress-height: 2em;
+        margin: 4em 0 0 0;
+      }
+
+      lrnsys-progress-circle.small {
+        --lrnsys-progress-circle-size: 2em;
+        --lrnsys-progress-spinner-size: 1.5em;
+        --lrnsys-progress-icon-size: 1.75em;
+      }
+      lrnsys-progress-circle.medium {
         --lrnsys-progress-circle-size: 2.5em;
+        --lrnsys-progress-spinner-size: 2em;
+        --lrnsys-progress-icon-size: 2em;
+      }
+      lrnsys-progress-circle.large {
+        --lrnsys-progress-circle-size: 5em;
+        --lrnsys-progress-spinner-size: 4.5em;
+        --lrnsys-progress-icon-size: 4em;
+      }
+      lrnsys-progress-circle.epic {
+        --lrnsys-progress-circle-size: 10em;
+        --lrnsys-progress-spinner-size: 9.5em;
+        --lrnsys-progress-icon-size: 9.5em;
       }
     </style>
     <iron-ajax
@@ -36,13 +90,14 @@ A LRN element
        url="[[activeNodeURL]]"
        handle-as="json"
        last-response="{{nodeData}}"
+       last-error="{{nodeDataError}}"
        on-response="handleNodeResponse"></iron-ajax>
     <h3 hidden>[[title]]</h3>
     <paper-progress id="progress" value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
+          <lrnsys-progress-circle class$="[[size]]" active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4"></lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -140,6 +195,31 @@ A LRN element
           type: Object,
           value: [],
         },
+        /**
+         * Error.
+         */
+        nodeDataError: {
+          type: Object,
+          value: [],
+          observer: "handleNodeError",
+        },
+        /**
+         * Flag to be vertical instead of horizontal.
+         */
+        vertical: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Size to make everything, small, medium, large, and epic
+         * are available class names; default medium.
+         */
+        size: {
+          type: String,
+          value: 'medium',
+          notify: true,
+          reflectToAttribute: true,
+        },
       },
       /**
        * Notice items have changed; only worry about if the count changes
@@ -231,19 +311,26 @@ A LRN element
           }, 1500);
         }
         // valid response, pass it along for other things to use
-        else if (detail.response.status === 200) {
+        else {
           this.items[this.active].status = 'available'
           this.set('items.' + this.active +'.status', 'available');
           this._responseList[this.active] = detail.response;
           this.activeNodeResponse = this._responseList[this.active];
         }
-        else {
+      },
+      /**
+       * Weak support for error code.
+       */
+      handleNodeError: function (newValue, oldValue) {
+        if (typeof newValue === typeof Object) {
           // fire an event that this isn't really available so we know an issue occured
           this.fire('node-load-failed', {node: this.items[this.active]});
           // @todo, need support for a failed to load state; could be useful
           // if we go into an offline capability in the future
           this.items[this.active].status = 'available'
           this.set('items.' + this.active +'.status', 'available');
+          this._responseList[this.active] = newValue;
+          this.activeNodeResponse = this._responseList[this.active];
         }
       },
       /**

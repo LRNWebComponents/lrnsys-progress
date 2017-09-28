@@ -44,8 +44,8 @@
       }
       circle-progress {
         margin: 0;
-        --circle-progress-width: var(--lrnsys-progress-circle-size, 20px);
-        --circle-progress-height: var(--lrnsys-progress-circle-size, 20px);
+        --circle-progress-width: var(--lrnsys-progress-circle-size, 2.5em);
+        --circle-progress-height: var(--lrnsys-progress-circle-size, 2.5em);
         --circle-progress-stroke-color: var(--lrnsys-progress-color, --google-green-500);
         --circle-progress-bg-stroke-color: var(--lrnsys-progress-container-color, --google-grey-300);
         --circle-progress-transition: 0.5s;
@@ -56,8 +56,8 @@
       }
       paper-spinner {
         display: block;
-        width: 2em;
-        height: 2em;
+        width: var(--lrnsys-progress-spinner-size, 2em);
+        height: var(--lrnsys-progress-spinner-size, 2em);
         position: absolute;
         z-index: 1;
         margin: .25em 0 0 .25em;
@@ -74,6 +74,10 @@
       iron-icon[hidden] {
         display: none !important;
       }
+      iron-icon {
+        width: var(--lrnsys-progress-icon-size, 2em);
+        height: var(--lrnsys-progress-icon-size, 2em);
+      }
       .disabled {
         background-color: var(--lrnsys-progress-disabled-color, --google-grey-500);
         color: white;
@@ -83,10 +87,12 @@
         color: black;
       }
       .loading iron-icon {
-        width: 1em;
+        width: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
+        height: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
       }
       .finished iron-icon:not(.activeIcon) {
-        width: 1em;
+        width: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
+        height: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
       }
       .available {
         background-color: var(--lrnsys-progress-active-color, --google-grey-300);

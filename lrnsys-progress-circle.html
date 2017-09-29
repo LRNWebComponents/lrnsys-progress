@@ -324,6 +324,25 @@
           value: 'assets/finished.mp3',
           reflectToAttribute: true,
         },
+        /**
+         * Fire and track milestones towards completion state.
+         */
+        _bubbleProgress: {
+          type: Object,
+        }
+      },
+      /**
+       * Ready state
+       */
+      ready: function(e) {
+        // seems odd but if we don't do this we can get issues with
+        // this field being unified across all circles when really
+        // we have to track this state per circle.
+        this._bubbleProgress = {
+          '25': false,
+          '50': false,
+          '75': false,
+        };
       },
       /**
        * Test if the value = max meaning that we hit complete from available
@@ -335,6 +354,22 @@
         // know how many items are in the set
         if (newValue == this.max && this.status == 'available') {
           this.status = 'complete';
+        }
+        // add events for certain mile stones; this has to be in reverse order
+        // otherwise we could actuall be passing 75 but it was at 0. This allows
+        // for jumping ahead and not triggering 25/50/75 all at once and preventing
+        // over reported percentages upstream
+        else if ((newValue / this.max >= .75) && !this._bubbleProgress['75']) {
+          this.fire('node-percent-milestone',{percentage: 75});
+          this._bubbleProgress['75'] = true;
+        }
+        else if ((newValue / this.max >= .50) && !this._bubbleProgress['50']) {
+          this.fire('node-percent-milestone',{percentage: 50});
+          this._bubbleProgress['50'] = true;
+        }
+        else if ((newValue / this.max >= .25) && !this._bubbleProgress['25']) {
+          this.fire('node-percent-milestone',{percentage: 25});
+          this._bubbleProgress['25'] = true;
         }
       },
       /**

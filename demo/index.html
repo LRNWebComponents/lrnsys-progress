@@ -73,8 +73,14 @@
             });
             // alert when status event changed as to what it was
             p.addEventListener('progress-state-change', function(e) {
+              percent = 0;
               console.log(e.detail.state);
               document.querySelector('#toast').show(e.detail.state);
+            });
+            // alert when status event changed as to what it was
+            p.addEventListener('node-percent-milestone', function(e) {
+              console.log(e.detail);
+              document.querySelector('#toast').show('percent complete:' + e.detail.percentage);
             });
             // alert if there was an error loading content
             p.addEventListener('node-load-failed', function(e) {

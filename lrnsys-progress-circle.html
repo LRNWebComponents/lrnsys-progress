@@ -9,8 +9,8 @@
   <template>
     <style>
       :host {
+        --paper-button-ink-color: var(--lrnsys-progress-color, --paper-green-500);
         display: block;
-        border-radius: 50em;
         -webkit-transition:
           box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
           color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
@@ -24,29 +24,34 @@
           color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
           background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
       }
-      :host[status='complete'] {
-        box-shadow: 0px 0px 0px 3px var(--lrnsys-progress-complete-color, --paper-green-900);
+      :host[status='complete'] .circle-wrapper {
+        --paper-button-ink-color: var(--lrnsys-progress-complete-color, --paper-green-500);
+        box-shadow: 0px 0px 0px .1em var(--lrnsys-progress-complete-color, --paper-green-900);
       }
-      :host[status='disabled'] {
+      :host[status='disabled'] .circle-wrapper {
         box-shadow: none;
       }
-      :host[status='available'] {
+      :host[status='available'] .circle-wrapper {
         box-shadow: none;
       }
-      :host[active] {
-        box-shadow: 0px 0px 0px 3px var(--google-grey-500);
+      :host[active] .circle-wrapper {
+        box-shadow: 0px 0px 0px .1em var(--google-grey-500);
       }
-      #button {
-        min-width: .1em;
+      .circle-wrapper {
+        border-radius: 100%;
+      }
+      .button {
         margin: 0;
         padding: 0;
-        display: inline;
+        display: block;
+        min-width: 2.5em;
+        border-radius: 100%;
       }
       circle-progress {
         margin: 0;
         --circle-progress-width: var(--lrnsys-progress-circle-size, 2.5em);
         --circle-progress-height: var(--lrnsys-progress-circle-size, 2.5em);
-        --circle-progress-stroke-color: var(--lrnsys-progress-color, --google-green-500);
+        --circle-progress-stroke-color: var(--lrnsys-progress-color, --paper-green-500);
         --circle-progress-bg-stroke-color: var(--lrnsys-progress-container-color, --google-grey-300);
         --circle-progress-transition: 0.5s;
         --circle-progress-stroke-linecap: square;
@@ -60,7 +65,8 @@
         height: var(--lrnsys-progress-spinner-size, 2em);
         position: absolute;
         z-index: 1;
-        margin: .25em 0 0 .25em;
+        margin: .25em;
+        padding: 0;
       }
       paper-spinner.multi {
         --paper-spinner-layer-1-color: var(--paper-purple-500);
@@ -68,15 +74,13 @@
         --paper-spinner-layer-3-color: var(--paper-blue-grey-500);
         --paper-spinner-layer-4-color: var(--paper-amber-500);
       }
-      paper-spinner[hidden] {
-        display: none !important;
-      }
-      iron-icon[hidden] {
+      /* enforce the browser default even strong; NEVER show this */
+      [hidden] {
         display: none !important;
       }
       iron-icon {
-        width: var(--lrnsys-progress-icon-size, 2em);
-        height: var(--lrnsys-progress-icon-size, 2em);
+        width: var(--lrnsys-progress-icon-size, 1.75em);
+        height: var(--lrnsys-progress-icon-size, 1.75em);
       }
       .disabled {
         background-color: var(--lrnsys-progress-disabled-color, --google-grey-500);
@@ -87,12 +91,12 @@
         color: black;
       }
       .loading iron-icon {
-        width: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
-        height: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
+        width: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
+        height: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
       }
       .finished iron-icon:not(.activeIcon) {
-        width: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
-        height: calc(var(--lrnsys-progress-icon-size, 2em) - 1em);
+        width: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
+        height: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
       }
       .available {
         background-color: var(--lrnsys-progress-active-color, --google-grey-300);
@@ -104,37 +108,75 @@
       .complete .activeIcon {
         color: white;
       }
-      :host[active] .complete .activeIcon {
-        color: black;
-      }
+      :host[active] .complete .activeIcon,
       :host[active] .finished .activeIcon {
         color: black;
       }
       .complete,
       .finished {
-        background-color: var(--lrnsys-progress-container-color, --google-green-500);
+        background-color: var(--lrnsys-progress-container-color, --paper-green-500);
         color: white;
       }
       :host[active] circle-progress {
         background-color: white;
         color: black;
       }
+      .listview-title {
+        font-size: 1em;
+        padding: 0;
+        margin: 0;
+      }
+      .description-content {
+        font-size: .5em;
+        font-style: italic;
+      }
+      .circle-wrapper {
+        display: inline-block;
+      }
+      #listview {
+        display: inline-block;
+        height: 2em;
+        padding: .25em 0;
+        margin: 0;
+        vertical-align: top;
+      }
+      .link {
+        height: 2.5em;
+        width: 100%;
+      }
+      :host[list-view] .button {
+        margin: 0;
+        padding: 0;
+        display: block;
+        min-width: 2.5em;
+        border-radius: 0;
+      }
     </style>
-    <paper-spinner active$="[[loading]]" hidden$="[[!loading]]" class="multi" alt$="Loading content for [[label]]"></paper-spinner>
-    <a href="[[url]]" tabindex="-1">
-      <paper-button id="button" disabled$="[[disabled]]" title="[[label]]">
-        <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[width]]" angle="180">
-        <iron-icon id="icon" icon="[[activeIcon]]" hidden$="[[!activeIcon]]"></iron-icon>
-        <slot></slot>
-      </circle-progress>
-      </paper-button>
-    </a>
-    <paper-tooltip
+    <paper-tooltip hidden$="[[!toolTip]]"
       for="button"
       position="bottom"
-      offset="0">
+      offset="8"
+      animation-delay="0">
       [[label]]
     </paper-tooltip>
+    <a href="[[url]]" tabindex="-1" class="link">
+    <paper-button id="button" class="button" disabled$="[[disabled]]" title="[[label]]">
+      <span class="circle-wrapper">
+      <paper-spinner active$="[[loading]]" hidden$="[[!loading]]" class="multi" alt$="Loading content for [[label]]"></paper-spinner>
+        <circle-progress class$="[[status]]" value="[[value]]" max="[[max]]" stroke-width="[[strokeWidth]]" angle="180">
+          <iron-icon id="icon" icon="[[activeIcon]]" hidden$="[[!activeIcon]]"></iron-icon>
+          <slot name="image"></slot>
+        </circle-progress>
+      </span>
+      <span id="listview" hidden$="[[!listView]]">
+          <h3 class="listview-title">[[label]]</h3>
+          <div class="description-content">
+            <slot name="description"></slot>
+            <slot></slot>
+          </div>
+      </span>
+    </paper-button>
+  </a>
   </template>
   <script>
     Polymer({
@@ -154,6 +196,22 @@
           value: 0,
           reflectToAttribute: true,
           observer: '_testValueComplete',
+        },
+        /**
+         * Whether to add a tooltip on hover.
+         */
+        toolTip: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute:true,
+        },
+        /**
+         * If this is in a list view, expand the output.
+         */
+        listView: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute:true,
         },
         /**
          * Icon.
@@ -278,7 +336,7 @@
         /**
          * Stroke width.
          */
-        width: {
+        strokeWidth: {
           type: Number,
           value: 4,
         },

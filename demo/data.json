@@ -6,7 +6,8 @@
     "value": 25,
     "max": 100,
     "icon": "gif",
-    "iconComplete": "check"
+    "iconComplete": "check",
+    "description": "In this lesson we're going to learn about Egypt!"
   },
   {
     "title": "ELMSLN",
@@ -15,7 +16,8 @@
     "value": 0,
     "max": 100,
     "icon": "3d-rotation",
-    "iconComplete": "check"
+    "iconComplete": "check",
+    "description": "Rome wasn't built in a day; let's explore just how long this empire took to mature to what we know today."
   },
   {
     "title": "Stuff",

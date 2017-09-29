@@ -19,13 +19,31 @@ A LRN element
     <style>
       :host {
         display: block;
-        padding: 1em;
+        margin-top: 1.5em;
+      }
+      :host[size="tiny"] {
+        font-size: .8em;
+      }
+      :host[size="small"] {
+        font-size: 1.4em;
+      }
+      :host[size="medium"]{
+        font-size: 1.8em;
+      }
+      :host[size="large"] {
+        font-size: 3em;
+      }
+      :host[size="x-large"] {
+        font-size: 4em;
+      }
+      :host[size="epic"] {
+        font-size: 6em;
       }
       #circle-container {
         display: flex;
         justify-content:space-between;
         list-style: none;
-        margin: 0;
+        margin: -1.5em 0 0 0;
         padding: 0;
       }
       paper-progress {
@@ -33,16 +51,15 @@ A LRN element
         --paper-progress-transition-duration: 0.5s;
         --paper-progress-transition-timing-function: ease;
         --paper-progress-transition-delay: .4s;
-        margin: 1.2em 0 0 0;
-        position: absolute;
-        z-index: 1;
-        width: 90%;
+        width: 100%;
       }
+      /* required to get the box shadow above the progress bar */
       .circle-node {
-        z-index: 2;
+        z-index: 1;
       }
+
       :host[vertical] {
-        width: min-content;
+        width: max-content;
       }
       :host[vertical] #circle-container {
         display: block;
@@ -51,57 +68,20 @@ A LRN element
         display: none !important;
       }
       :host[vertical] lrnsys-progress-circle {
-        margin: 1em;
+        margin: 1em 0;
+        padding: 0;
+        width: 100%;
       }
 
-      :host[size="small"] paper-progress {
-        --paper-progress-height: .4em;
-        margin: .8em 0 0 0;
-
-      }
-      :host[size="medium"] paper-progress {
-        --paper-progress-height: .5em;
-        margin: 1.2em 0 0 0;
-
-      }
-      :host[size="large"] paper-progress {
-        --paper-progress-height: .6em;
-        margin: 2em 0 0 0;
-
-      }
-      :host[size="epic"] paper-progress {
-        --paper-progress-height: 2em;
-        margin: 4em 0 0 0;
-      }
-
-      lrnsys-progress-circle.small {
-        width: 2em;
-        height: 2em;
-        --lrnsys-progress-circle-size: 2em;
-        --lrnsys-progress-spinner-size: 1.5em;
-        --lrnsys-progress-icon-size: 1.75em;
-      }
-      lrnsys-progress-circle.medium {
+      lrnsys-progress-circle {
         width: 2.5em;
         height: 2.5em;
         --lrnsys-progress-circle-size: 2.5em;
         --lrnsys-progress-spinner-size: 2em;
-        --lrnsys-progress-icon-size: 2em;
+        --lrnsys-progress-icon-size: 1.75em;
+        --paper-spinner-stroke-width: .1em;
       }
-      lrnsys-progress-circle.large {
-        width: 5em;
-        height: 5em;
-        --lrnsys-progress-circle-size: 5em;
-        --lrnsys-progress-spinner-size: 4.5em;
-        --lrnsys-progress-icon-size: 4em;
-      }
-      lrnsys-progress-circle.epic {
-        width: 10em;
-        height: 10em;
-        --lrnsys-progress-circle-size: 10em;
-        --lrnsys-progress-spinner-size: 9.5em;
-        --lrnsys-progress-icon-size: 9.5em;
-      }
+
     </style>
     <iron-ajax
        id="ajax"
@@ -115,7 +95,9 @@ A LRN element
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
         <li class="circle-node">
-          <lrnsys-progress-circle play-finish-sound="[[soundFinish]]" play-sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" width="4" class$="[[size]]"></lrnsys-progress-circle>
+          <lrnsys-progress-circle play-finish-sound="[[soundFinish]]" play-sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" active="[[_isActive(index, active)]]" step="[[index]]" label="[[item.title]]" icon="[[item.icon]]" icon-complete="[[item.iconComplete]]" data-url="[[item.dataUrl]]" url="[[item.url]]" status="[[item.status]]" value="[[item.value]]" max="[[item.max]]" stroke-width="[[strokeWidth]]" tool-tip="[[!vertical]]" list-view="[[vertical]]" class$="[[size]]">
+            <span slot="description">[[item.description]]</span>
+          </lrnsys-progress-circle>
         </li>
       </template>
     </ul>
@@ -277,6 +259,41 @@ A LRN element
           notify: true,
           reflectToAttribute: true,
         },
+        /**
+         * Calculate width based on the size since we have to convert em to px.
+         */
+        strokeWidth: {
+          type: Number,
+          computed: "_getStrokeWidth(size)",
+        },
+      },
+      /**
+       * Set an appropriate stroke width based on size of the element.
+       * This is because it's a hard pixel value when the rest of our
+       * sizing is based on em's
+       */
+      _getStrokeWidth: function (size) {
+        var width = 4;
+        if (size == 'tiny') {
+          width = 3;
+        }
+        else if (size == 'small') {
+          width = 4;
+        }
+        else if (size == 'medium') {
+          width = 5;
+        }
+        else if (size == 'large') {
+          width = 6;
+        }
+        else if (size == 'x-large') {
+          width = 7;
+        }
+        else if (size == 'epic') {
+          width = 8;
+        }
+
+        return width;
       },
       /**
        * Fire event that state has changed with what the statement is.

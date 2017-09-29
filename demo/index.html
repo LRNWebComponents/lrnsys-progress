@@ -23,7 +23,14 @@
       <h3>Basic lrnsys-progress demo</h3>
       <demo-snippet>
         <template is="dom-bind">
+
+          <lrnsys-progress sound sound-finish title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="small"></lrnsys-progress>
+
           <lrnsys-progress sound sound-finish title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="medium"></lrnsys-progress>
+
+          <lrnsys-progress sound sound-finish title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="large"></lrnsys-progress>
+
+          <lrnsys-progress sound sound-finish title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="x-large"></lrnsys-progress>
 
           <iron-ajax
            auto
@@ -40,7 +47,7 @@
           <paper-button id="add">Add to end</paper-button>
           <paper-button id="drop">Remove last</paper-button>
 
-          <lrnsys-progress vertical title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="large"></lrnsys-progress>
+          <lrnsys-progress vertical title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="epic"></lrnsys-progress>
 
           <script>
             var t = document.querySelector('#button10');

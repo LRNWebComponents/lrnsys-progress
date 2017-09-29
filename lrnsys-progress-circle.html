@@ -153,6 +153,7 @@
           type: String,
           value: 0,
           reflectToAttribute: true,
+          observer: '_testValueComplete',
         },
         /**
          * Icon.
@@ -322,6 +323,14 @@
           type: String,
           value: 'assets/337049__shinephoenixstormcrow__320655-rhodesmas-level-up-01.mp3',
         },
+      },
+      /**
+       * Test if the value = max meaning that we hit complete from available
+       */
+      _testValueComplete: function (newValue) {
+        if (newValue == this.max && this.status == 'available') {
+          this.status = 'complete';
+        }
       },
       /**
        * Focus event for UX consistency.

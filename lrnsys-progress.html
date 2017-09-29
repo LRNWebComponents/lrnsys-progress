@@ -119,7 +119,7 @@ A LRN element
     Polymer({
       is: 'lrnsys-progress',
       listeners: {
-        'node-is-active': '_activeChanged',
+        'node-is-active': '_bubbleUpChangeActive',
         'node-status-change': '_statusChanged',
       },
       properties: {
@@ -164,6 +164,7 @@ A LRN element
           value: 0,
           notify: true,
           reflectToAttribute: true,
+          observer: "_activeChanged",
         },
         /**
          * Whether to automatically make disabled items available
@@ -268,10 +269,17 @@ A LRN element
         this.fire('progress-response-loaded', {response: value});
       },
       /**
+       * Notice event from the nodes themselves
+       * and set active based on a node bubbling up an event
+       * that says "Hey I am active now!"
+       */
+      _bubbleUpChangeActive: function (e) {
+        this.active = e.target.step;
+      },
+      /**
        * Active item has changed, set the rest of the data to match.
        */
-      _activeChanged: function (e) {
-        this.active = e.target.step;
+      _activeChanged: function () {
         this.items.forEach((element, index, array) => {
           if (this.items[index].status == 'disabled') {
             // do nothing, it's disabled unless....

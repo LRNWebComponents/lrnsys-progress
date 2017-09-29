@@ -11,7 +11,7 @@
   {
     "title": "ELMSLN",
     "dataUrl": "data.json",
-    "status": "available",
+    "status": "disabled",
     "value": 0,
     "max": 100,
     "icon": "3d-rotation",
@@ -20,7 +20,7 @@
   {
     "title": "Stuff",
     "dataUrl": "data/callback.json",
-    "status": "available",
+    "status": "disabled",
     "value": 0,
     "max": 100,
     "icon": "flag",
@@ -29,7 +29,7 @@
   {
     "title": "Things",
     "dataUrl": "data/callback.json",
-    "status": "available",
+    "status": "disabled",
     "value": 0,
     "max": 100,
     "icon": "forward",

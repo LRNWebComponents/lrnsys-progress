@@ -23,7 +23,7 @@
       <h3>Basic lrnsys-progress demo</h3>
       <demo-snippet>
         <template is="dom-bind">
-          <lrnsys-progress sound title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="medium"></lrnsys-progress>
+          <lrnsys-progress sound sound-finish title="The steps to complete this lesson" id="progress" active="{{__active}}" items="{{__items}}" progressive-unlock size="medium"></lrnsys-progress>
 
           <iron-ajax
            auto
@@ -73,7 +73,14 @@
             });
             // alert when status event changed as to what it was
             p.addEventListener('progress-state-change', function(e) {
+              console.log(e.detail.state);
               document.querySelector('#toast').show(e.detail.state);
+            });
+            // alert if there was an error loading content
+            p.addEventListener('node-load-failed', function(e) {
+              console.log(e.detail);
+              console.log('dataUrl ' + e.detail.node.dataUrl + ' ' + e.detail.message.error.message);
+              document.querySelector('#toast').show('dataUrl ' + e.detail.node.dataUrl + ' ' + e.detail.message.error.message);
             });
             // add an item
             add.addEventListener('click', function(e) {

@@ -254,7 +254,6 @@
         },
         /**
          * Internal property to ensure we only ding 1x
-         * @type {Object}
          */
         __chimed: {
           type: Boolean,
@@ -314,20 +313,26 @@
          */
         completeSound: {
           type: String,
-          value: 'assets/337049__shinephoenixstormcrow__320655-rhodesmas-level-up-01.mp3',
+          value: 'assets/complete.mp3',
+          reflectToAttribute: true,
         },
         /**
          * Play sound on complete.
          */
         finishedSound: {
           type: String,
-          value: 'assets/337049__shinephoenixstormcrow__320655-rhodesmas-level-up-01.mp3',
+          value: 'assets/finished.mp3',
+          reflectToAttribute: true,
         },
       },
       /**
        * Test if the value = max meaning that we hit complete from available
        */
       _testValueComplete: function (newValue) {
+        // ensure we were previously available before marking complete
+        // this way we don't conflict with the finished state which can
+        // only be set from outside the circle as the circle doesn't
+        // know how many items are in the set
         if (newValue == this.max && this.status == 'available') {
           this.status = 'complete';
         }
@@ -414,6 +419,8 @@
        * Play the sound effect.
        */
       _playSound: function() {
+        // calculate sound to use and ensure it only ever happens once
+        // via the __chimed flag
         if (this.status == 'complete') {
           window.audio = new Audio(this.completeSound);
           this.__chimed = true;

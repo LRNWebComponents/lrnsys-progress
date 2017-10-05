@@ -42,9 +42,16 @@ A LRN element
       #circle-container {
         display: flex;
         justify-content:space-between;
-        list-style: none;
         margin: -1.5em 0 0 0;
         padding: 0;
+        list-style: none;
+      }
+      .progress-title {
+        position: absolute !important;
+        clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+        clip: rect(1px, 1px, 1px, 1px);
+        overflow: hidden;
+        height: 1px;
       }
       paper-progress {
         --paper-progress-height: .5em;
@@ -56,6 +63,9 @@ A LRN element
       /* required to get the box shadow above the progress bar */
       .circle-node {
         z-index: 1;
+      }
+      ul#circle-container li.circle-node {
+        list-style-type: none;
       }
 
       :host[vertical] {
@@ -78,7 +88,7 @@ A LRN element
         height: 2.5em;
         --lrnsys-progress-circle-size: 2.5em;
         --lrnsys-progress-spinner-size: 2em;
-        --lrnsys-progress-icon-size: 1.75em;
+        --lrnsys-progress-icon-size: 1.5em;
         --paper-spinner-stroke-width: .1em;
       }
 
@@ -90,7 +100,7 @@ A LRN element
        last-response="{{nodeData}}"
        last-error="{{nodeDataError}}"
        on-response="handleNodeResponse"></iron-ajax>
-    <h3 hidden>[[title]]</h3>
+    <h3 class="progress-title">[[title]]</h3>
     <paper-progress id="progress" value="[[overallPercentage]]"></paper-progress>
     <ul id="circle-container">
       <template is="dom-repeat" items="[[items]]" as="item">
@@ -112,6 +122,14 @@ A LRN element
         'node-status-change': '_statusChanged',
       },
       properties: {
+        /**
+         * Disable internal ajax calls as something is handling them above.
+         */
+        disableAjaxCalls: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+        },
         /**
          * Items to display to visualize the progression.
          */
@@ -319,8 +337,18 @@ A LRN element
           this.set('items.' + this.active +'.status', 'loading');
           // becasue this is so early in bootstrap of the element we
           // won't be able to detect the initial loading event
-          this.$.ajax.url = this.items[this.active].dataUrl;
-          this.$.ajax.generateRequest();
+          if (typeof this.items[this.active].dataUrl !== typeof undefined && !this.disableAjaxCalls) {
+            this.$.ajax.url = this.items[this.active].dataUrl;
+            this.$.ajax.generateRequest();
+          }
+          else {
+            setTimeout( () => {
+              this.items[this.active].status = 'available'
+              this.set('items.' + this.active +'.status', 'available');
+              this._responseList[this.active] = {};
+              this.activeNodeResponse = this._responseList[this.active];
+            }, 1500);
+          }
         }
       },
       /**
@@ -397,8 +425,18 @@ A LRN element
         // we are in loading state so go load data and let the response
         // dictate what state we reach after that
         if (e.target.status == 'loading') {
-          this.$.ajax.url = this.items[this.active].dataUrl;
-          this.$.ajax.generateRequest();
+          if (typeof this.items[this.active].dataUrl !== typeof undefined && !this.disableAjaxCalls) {
+            this.$.ajax.url = this.items[this.active].dataUrl;
+            this.$.ajax.generateRequest();
+          }
+          else {
+            setTimeout( () => {
+              this.items[this.active].status = 'available'
+              this.set('items.' + this.active +'.status', 'available');
+              this._responseList[this.active] = {};
+              this.activeNodeResponse = this._responseList[this.active];
+            }, 1500);
+          }
         }
       },
       /**

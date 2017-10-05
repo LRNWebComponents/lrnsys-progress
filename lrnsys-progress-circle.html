@@ -11,14 +11,6 @@
       :host {
         --paper-button-ink-color: var(--lrnsys-progress-color, --paper-green-500);
         display: block;
-        -webkit-transition:
-          box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
-          color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
-          background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
-        -ms-transition:
-          box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
-          color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
-          background-color var(--lrnsys-progress-circle-transition, .5s) ease-in-out;
         transition:
           box-shadow var(--lrnsys-progress-circle-transition, 0.5s) linear,
           color var(--lrnsys-progress-circle-transition, 0.5s) ease-in-out,
@@ -47,6 +39,10 @@
         min-width: 2.5em;
         border-radius: 100%;
       }
+      paper-button {
+        width: var(--lrnsys-progress-circle-size, 2.5em);
+        height: var(--lrnsys-progress-circle-size, 2.5em);
+      }
       circle-progress {
         margin: 0;
         --circle-progress-width: var(--lrnsys-progress-circle-size, 2.5em);
@@ -67,6 +63,9 @@
         z-index: 1;
         margin: .25em;
         padding: 0;
+        visibility: visible;
+        opacity: 1;
+        transition: visibility 0.4s, opacity 0.4s ease;
       }
       paper-spinner.multi {
         --paper-spinner-layer-1-color: var(--paper-purple-500);
@@ -76,11 +75,20 @@
       }
       /* enforce the browser default even strong; NEVER show this */
       [hidden] {
-        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      }
+      .transition {
+        opacity: .4;
+        width: calc(var(--lrnsys-progress-icon-size, 1.5em) - .5em);
+        height: calc(var(--lrnsys-progress-icon-size, 1.5em) - .5em);
       }
       iron-icon {
-        width: var(--lrnsys-progress-icon-size, 1.75em);
-        height: var(--lrnsys-progress-icon-size, 1.75em);
+        visibility: visible;
+        opacity: 1;
+        transition: width 0.1s linear, height 0.1s linear, visibility 0.4s ease, opacity 0.4s ease;
+        width: var(--lrnsys-progress-icon-size, 1.5em);
+        height: var(--lrnsys-progress-icon-size, 1.5em);
       }
       .disabled {
         background-color: var(--lrnsys-progress-disabled-color, --google-grey-500);
@@ -90,13 +98,9 @@
         background-color: white;
         color: black;
       }
-      .loading iron-icon {
-        width: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
-        height: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
-      }
       .finished iron-icon:not(.activeIcon) {
-        width: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
-        height: calc(var(--lrnsys-progress-icon-size, 1.75em) - .5em);
+        width: calc(var(--lrnsys-progress-icon-size, 1.5em) - .5em);
+        height: calc(var(--lrnsys-progress-icon-size, 1.5em) - .5em);
       }
       .available {
         background-color: var(--lrnsys-progress-active-color, --google-grey-300);
@@ -489,22 +493,25 @@
        */
       _getActiveIcon: function (icon, iconComplete, status) {
         if (typeof icon !== typeof undefined) {
+          var tmp = icon;
           // support for a loading icon while loading
           if (status == 'loading') {
-            return this.loadingIcon;
+            tmp = this.loadingIcon;
+            this.$.icon.classList.add('transition');
           }
           else if (status == 'finished') {
-            return this.finishedIcon;
+            tmp = this.finishedIcon;
           }
           else if (status == 'complete' && typeof iconComplete !== typeof undefined) {
             if (this.playSound && !this.__chimed) {
               this._playSound();
             }
-            return iconComplete;
+            tmp = iconComplete;
           }
           else {
-            return icon;
+            this.$.icon.classList.remove('transition');
           }
+          return tmp;
         }
         return false;
       },

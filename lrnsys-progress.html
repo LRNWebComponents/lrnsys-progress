@@ -333,21 +333,21 @@ A LRN element
         // state invokes potentially without items while this one will only
         // match a case where there was no values and now we have one
         if (typeof oldValue !== typeof undefined && newValue.length != oldValue.length && typeof this._responseList[this.active] === typeof undefined) {
-          this.items[this.active].status = 'loading';
+          newValue[this.active].status = 'loading';
           this.set('items.' + this.active +'.status', 'loading');
           // becasue this is so early in bootstrap of the element we
           // won't be able to detect the initial loading event
-          if (typeof this.items[this.active].dataUrl !== typeof undefined && !this.disableAjaxCalls) {
-            this.$.ajax.url = this.items[this.active].dataUrl;
+          if (typeof newValue[this.active].dataUrl !== typeof undefined && !this.disableAjaxCalls) {
+            this.$.ajax.url = newValue[this.active].dataUrl;
             this.$.ajax.generateRequest();
           }
           else {
             setTimeout( () => {
-              this.items[this.active].status = 'available'
+              newValue[this.active].status = 'available'
               this.set('items.' + this.active +'.status', 'available');
               this._responseList[this.active] = {};
               this.activeNodeResponse = this._responseList[this.active];
-            }, 1500);
+            }, 1200);
           }
         }
       },
@@ -388,7 +388,7 @@ A LRN element
             }
           }
           // or if our value is at max AND it's the last item in the list
-          else if (this.items[index].value >= this.items[index].max && index == this.items.length) {
+          else if (this.items[index].value >= this.items[index].max && index == (this.items.length - 1)) {
             this.items[index].status = 'finished'
             this.set('items.' + index +'.status', 'finished');
           }
@@ -437,6 +437,12 @@ A LRN element
               this.activeNodeResponse = this._responseList[this.active];
             }, 1500);
           }
+        }
+        else if (e.target.status == 'complete' && this.items.length === (this.active + 1)) {
+          setTimeout( () => {
+            this.items[this.active].status = 'finished'
+            this.set('items.' + this.active +'.status', 'finished');
+          }, 100);
         }
       },
       /**

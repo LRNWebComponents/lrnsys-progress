@@ -322,6 +322,13 @@
           value: false,
         },
         /**
+         * Internal property to ensure we only finish 1x
+         */
+        __finishchimed: {
+          type: Boolean,
+          value: false,
+        },
+        /**
          * URL to link to on click.
          */
         url: {
@@ -409,12 +416,12 @@
       /**
        * Test if the value = max meaning that we hit complete from available
        */
-      _testValueComplete: function (newValue) {
+      _testValueComplete: function (newValue, oldValue) {
         // ensure we were previously available before marking complete
         // this way we don't conflict with the finished state which can
         // only be set from outside the circle as the circle doesn't
         // know how many items are in the set
-        if (newValue == this.max && this.status == 'available') {
+        if (newValue >= this.max && this.status == 'available') {
           this.status = 'complete';
         }
         // add events for certain mile stones; this has to be in reverse order
@@ -527,7 +534,7 @@
         }
         else if (this.status == 'finished') {
           window.audio = new Audio(this.finishedSound);
-          this.__chimed = true;
+          this.__finishchimed = true;
         }
         else {
           // shouldn't be possible
@@ -549,7 +556,7 @@
        */
       _finishedStatus: function (status) {
         if (status == 'finished') {
-          if (this.playFinishSound && !this.__chimed) {
+          if (this.playFinishSound && !this.__finishchimed) {
             this._playSound();
           }
           return true;
